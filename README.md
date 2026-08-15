@@ -26,7 +26,9 @@ Instead of forcing users to fill out long, rigid contact forms, this tool uses a
    
 **3.Regional  Spatial Mapping**
    The tool maintains a hardcoded geographic grid of major  Region logistics hubs (Kiambu,Nairobi City ).
-   It passes the locations into the Haversine formula to compute the distance between the two towns, applying a 1.3× scale factor to accurately. **4.Transparent Price Computation **
+   It passes the locations into the Haversine formula to compute the distance between the two towns, applying a 1.3× scale factor to accurately.
+   
+** 4.Transparent Price Computation**
 The backend pipes the variables into a structured rate card formula to generate a quote in Kenyan Shillings (KSh):
     Base Truck Rate: Determined by house volume (Bedsitter = KSh 3,500 up to 4B = KSh 18,000) to account for vehicle size.
     Seat Surcharge: KSh 300 per seat to cover extra crew loaders and specialized transit wrapping materials.
