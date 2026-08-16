@@ -45,7 +45,7 @@ Instead of forcing users to fill out long, rigid contact forms, this tool uses a
 
 The backend pipes the variables into a structured rate card formula to generate a quote in Kenyan Shillings (KSh):
 
- Base Truck Rate: Determined by house volume (Bedsitter = KSh 3,500 up to 4B = KSh 18,000) to     account for vehicle size.
+ Base Truck Rate: Determined by house volume (Bedsitter = KSh 3,500 up to 4B = KSh 18,000) to   account for vehicle size.
     
  Seat Surcharge: KSh 300 per seat to cover extra crew loaders and specialized transit wrapping materials.
     
