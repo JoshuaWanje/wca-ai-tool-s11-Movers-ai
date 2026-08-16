@@ -49,7 +49,7 @@ The backend pipes the variables into a structured rate card formula to generate 
     
  Seat Surcharge: KSh 300 per seat to cover extra crew loaders and specialized transit wrapping materials.
     
-Fuel Fee: KSh 150 per calculated kilometer to offset fuel consumption and emDistance pty return trips.
+Distance Fuel Fee: KSh 150 per calculated kilometer to offset fuel consumption and empty return trips.
 
     
 **5. Automated CRM Storage & Response**
