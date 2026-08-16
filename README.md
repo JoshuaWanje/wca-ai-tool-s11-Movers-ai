@@ -1,62 +1,104 @@
-# NAMES
+## Name
+1. Joshua Wanje
+2. Susan Odinga
+3. Nevyl Cherop
+4. Victor Ngundo
+5. Elisha Kibichii
 
-1.Victor Ngundo
+# Nairobi & Kiambu Movers Chatbot
 
-2.Joshua Wanje
+A command-line chatbot that collects a customer's moving details (pickup location, destination, house type, and seats) through natural conversation, then calculates and prints a price quote based on real driving distance.
 
-3.Elisha Kibichii
+## What it does
 
-4.Nevyl Cherop
+1. Chats with the user to collect: pickup location, destination, house type, and seats owned.
+2. Once all details are confirmed, it:
+   - Geocodes both locations (OpenStreetMap)
+   - Calculates driving distance between them (OSRM)
+   - Computes a price quote based on the rate card
+   - Prints the quote and saves it to movers_quote.txt
 
-5.Susan Odinga
+## Setup
 
-# ABOUT THE TOOL
+### 1. Clone the repo
 
- It is an AI-driven Conversational Booking Engine specifically architected for a moving company operating in the regions of Kenya
+git clone https://github.com/JoshuaWanje/wca-ai-tool-s11-Movers-ai.git
+cd wca-ai-tool-s11-Movers-ai
 
+
+### 2. Create a virtual environment
+
+py -m venv venv
+
+
+Activate it:
+- PowerShell: venv\Scripts\Activate.ps1
+- macOS/Linux: source venv/bin/activate
+
+### 3. Install dependencies
+
+pip install -r requirements.txt
+
+
+### 4. Set up your API key
+Copy .env.example to a new file named .env:
+
+copy .env.example .env
+
+Then open .env and replace the placeholder with your real OpenRouter API key:
+
+OPENROUTER_API_KEY=your_actual_key_here
+
+
+*Never commit .env* — it's already listed in .gitignore. Each person on the team should use their own key, or a shared one agreed on privately (not in the repo).
+
+## Running it
+
+
+py movers.py
+
+
+Chat with the bot in the terminal. It'll ask for your pickup location, destination, house type, and seats, then generate a quote.
+
+## Team workflow
+
+We're working in a team of 5 — to avoid overwriting each other's changes, everyone works on their own branch and merges via Pull Request.
+
+1. Before starting work, update your local main:
+   
+   git checkout main
+   git pull origin main
+   
+2. Create your own branch:
+   
+   git checkout -b yourname-feature
+   
+3. Make your changes, then commit and push:
+   
+   git add .
+   git commit -m "Describe what you changed"
+   git push -u origin yourname-feature
+   
+4. Open a Pull Request on GitHub to merge into main. Get a teammate to review before merging.
+5. Don't push directly to main.
+
+## Project structure
+
+| File | Owner | Covers |
+|---|---|---|
+| SYSTEM_PROMPT, ask_ai() | Person 1 | AI conversation logic |
+| geocode(), driving_km() | Person 2 | Location & distance |
+| quote(), pricing constants | Person 3 | Pricing & quote output |
+| chat(), main() | Person 4 | Chat loop & error handling |
+| .env.example, requirements.txt, this README | Person 5 | Setup, docs, integration testing |
+
+## Notes
+
+- Pricing constants in movers.py (BASE_FEE, PER_KM, PER_SEAT, MINIMUM) are placeholders — update them to match the real rate card.
+- Geocoding and routing use free public APIs (Nominatim, OSRM) — they have rate limits, so avoid hammering them with rapid repeated requests during testing.
+-
  
- # WHAT THE TOOL DOES
- 
-Instead of forcing users to fill out long, rigid contact forms, this tool uses a Large Language Model (LLM) to extract information through natural, friendly conversation. Here is exactly what happens under the hood when a customer interacts with it:
-
-
-**1. Conversational Extraction (AI Layer)**
-   Natural Dialogue: The chatbot starts a friendly conversation using an embedded specialized      persona.
    
- Context Tracking: It monitors the chat history to pick up four specific parameters: Origin town, Destination town, House size (Bedsitter to 4B),      and Sofa seat count.
- 
- Strict Guardrails: If a user mentions moving somewhere outside the  service zone (like Mombasa, Nakuru, or Eldoret), the AI immediately flags it      and declines the job to keep your operations focused locally.
-
-   
-**2. Autonomous Function Execution (The Bridge)**
-
- Open AI Function Calling: The moment the AI extracts all four pieces of information, it stops asking questions
-   
- It automatically triggers the calculate_moving_quote Python function behind the scenes, bridging the gap between conversational text and math. [1]
-
-   
-**3.Regional  Spatial Mapping**
-
- The tool maintains a hardcoded geographic grid of major  Region logistics hubs (Kiambu,Nairobi City ).
- It passes the locations into the Haversine formula to compute the distance between the two towns, applying a 1.3× scale factor to accurately.
-   
-   
-**4.Transparent Price Computation**
-
-The backend pipes the variables into a structured rate card formula to generate a quote in Kenyan Shillings (KSh):
-
- Base Truck Rate: Determined by house volume (Bedsitter = KSh 3,500 up to 4B = KSh 18,000) to   account for vehicle size.
-    
- Seat Surcharge: KSh 300 per seat to cover extra crew loaders and specialized transit wrapping materials.
-    
-Distance Fuel Fee: KSh 150 per calculated kilometer to offset fuel consumption and empty return trips.
-
-    
-**5. Automated CRM Storage & Response**
-
-Persistent CSV Logging: The script instantly commits the client's information, timestamp, and calculated price to a running central,nairobi_movers_leads.csv spreadsheet on the  server for the dispatch team.
-
-Clean Formatting: Finally, it loops back to the user with a nicely formatted, broken-down price estimation message, asking if they would like to lock in a booking.
 
 
 
