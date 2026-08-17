@@ -27,17 +27,50 @@ PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 # TASK 1 (AI & Prompt Engineering)
 # TODO: write the full system prompt and implement ask_ai().
 # ============================================================
-SYSTEM_PROMPT = """TODO: write the system prompt here.
-It should instruct the bot to collect pickup location, destination, house type,
-and seats owned — one at a time — then end with a DATA_READY: line containing
-the collected details as JSON."""
+SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
+
+Your job is to gather the information needed for a moving quote, one field at a time.
+Ask only for the next missing detail and do not request multiple pieces of information in the same message.
+
+Follow this order strictly:
+1. Ask for the pickup location.
+2. Ask for the destination.
+3. Ask for the house type.
+4. Ask for the number of seats owned.
+
+Rules:
+- Keep replies short, friendly, and conversational.
+- If the user gives more than one item at once, acknowledge the information received and ask only for the missing field.
+- Accept common variations for house types such as Bedsitter, 1 Bedroom, 2 Bedroom, 3 Bedroom, and 4 Bedroom.
+- Treat seats owned as an integer number.
+- Once all four details are known, respond with a brief confirmation and then end the message with a line exactly in this format:
+DATA_READY: {"pickup_location": "...", "destination": "...", "house_type": "...", "seats_owned": 0}
+- Do not add extra JSON blocks or markdown fences.
+- The final line must be valid JSON and include all collected details.
+"""
 
 
 def ask_ai(history):
-    # TODO: send history to OpenRouter and return the assistant's reply text.
-    # Hint: POST to OPENROUTER_URL with the API_KEY in headers and SYSTEM_PROMPT
-    # plus history in the messages list. Use r.raise_for_status() to catch errors.
-    raise NotImplementedError("ask_ai() not implemented yet — Task 1")
+    """Send the conversation to OpenRouter and return the model reply text."""
+    if not API_KEY:
+        raise RuntimeError("OPENROUTER_API_KEY is not set.")
+
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://localhost",
+        "X-Title": "Nairobi Movers Chatbot",
+    }
+    payload = {
+        "model": MODEL,
+        "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + history,
+        "temperature": 0.2,
+    }
+
+    response = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60)
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"].strip()
 
 
 # ============================================================
