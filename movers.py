@@ -1,8 +1,5 @@
 #Nairobi & Kiambu Movers chatbot — chats to collect trip details, then quotes a price.
 # Uses OpenRouter's standard chat/completions endpoint directly (no Anthropic SDK needed).
-#
-# TEAM SKELETON — each function below is owned by one person (see comments).
-# Fill in only your own function(s). Don't edit anyone else's section.
 
 import json, os, sys
 import requests
