@@ -72,15 +72,76 @@ def quote(data):
 
 # ============================================================
 # TASK 4 (Chat Loop & Error Handling)
-# TODO: implement the interactive chat loop and program entry point.
+#  Covers suggestions from the task guide:
+#  1. "quit"/"exit" command
+#  2. "restart" command
+#  3. Conversation length limit (avoid runaway loops / API costs)
+#  4. Better JSON error recovery (ask the AI to resend instead of giving up)
+# ============================================================
+MAX_TURNS = 50
 # ============================================================
 def chat():
-    # TODO: greet the user, loop taking input, call ask_ai(), handle errors,
-    # and when the reply contains "DATA_READY:", parse the JSON and call quote().
-    raise NotImplementedError("chat() not implemented yet — Task 4")
+    """Run the interactive chat loop that collects details and triggers a quote."""
+    history = [{"role": "assistant", "content": "Hi! I can help you get a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
+    print(f"Bot: {history[0]['content']}")
+    turns = 0
+
+    while True:
+        user_text = input("You: ").strip()
+
+        if user_text.lower() in ("quit", "exit"):
+            print("Bot: Okay, ending the chat. Have a good day!")
+            return
+
+        if user_text.lower() == "restart":
+            history = [{"role": "assistant", "content": "Sure, let's start over. Where are you moving from?"}]
+            print(f"Bot: {history[0]['content']}")
+            turns = 0
+            continue
+
+        if not user_text:
+            print("Bot: Please type something.")
+            continue
+
+        turns += 1
+        if turns > MAX_TURNS:
+            print("Bot: This conversation is getting long — let's restart to keep things on track.")
+            history = [{"role": "assistant", "content": "Where are you moving from?"}]
+            turns = 0
+            continue
+
+        history.append({"role": "user", "content": user_text})
+
+        try:
+            reply = ask_ai(history)
+        except requests.HTTPError as e:
+            print(f"Bot: API error ({e.response.status_code}): {e.response.text[:200]}")
+            continue
+        except requests.RequestException as e:
+            print(f"Bot: Connection problem ({e}). Try again.")
+            continue
+
+        history.append({"role": "assistant", "content": reply})
+
+        if "DATA_READY:" in reply:
+            visible, json_part = reply.split("DATA_READY:", 1)
+            if visible.strip():
+                print(f"Bot: {visible.strip()}")
+            try:
+                quote(json.loads(json_part.strip()))
+                return
+            except json.JSONDecodeError:
+                # Ask the AI to resend the data instead of giving up entirely
+                history.append({"role": "user",
+                                 "content": "That JSON didn't come through correctly. Please resend the DATA_READY line with valid JSON."})
+                print("Bot: Sorry, something went wrong reading the details — let me try that again.")
+                continue
+
+        print(f"Bot: {reply}")
 
 
 def main():
+    """Entry point: check for an API key, then start the chat loop."""
     if not API_KEY:
         sys.exit("Set OPENROUTER_API_KEY in a .env file or environment variable.")
     try:
