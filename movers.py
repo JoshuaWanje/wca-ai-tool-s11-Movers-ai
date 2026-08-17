@@ -45,18 +45,84 @@ def ask_ai(history):
 
 # ============================================================
 # TASK 2 (Location & Distance)
-# TODO: implement geocoding and distance calculation.
-# ============================================================
+ # This replaces geocode() and driving_km() in movers.py.
+# Covers suggestions 1-4 from the task guide:
+#  1. Bias results toward Nairobi/Kiambu with a viewbox
+#  2. Cache repeated lookups
+#  3. Handle Nominatim/OSRM rate limits gracefully (retry once after a short delay)
+#  4. Verify the result is actually within Nairobi/Kiambu (check address components)
+import time
+
+_geocode_cache = {}
+# Rough bounding box covering Nairobi + Kiambu counties (min_lon, min_lat, max_lon, max_lat)
+_NAIROBI_KIAMBU_VIEWBOX = "36.60,-1.45,37.10,-0.95"
+
+# Counties Nominatim should report back, to confirm the match is actually local
+_VALID_COUNTIES = {"nairobi", "kiambu"}
+
+
 def geocode(place):
-    # TODO: look up (lat, lon) for place using a geocoding API (e.g. Nominatim),
-    # restricted to Kenya. Raise ValueError if the place isn't found.
-    raise NotImplementedError("geocode() not implemented yet — Task 2")
+    """Look up (lat, lon) for a place name, biased toward Nairobi/Kiambu, with caching,
+    rate-limit retry, and a check that the result is really in Nairobi/Kiambu."""
+    key = place.strip().lower()
+    if key in _geocode_cache:
+        return _geocode_cache[key]
+
+    params = {
+        "format": "jsonv2",
+        "limit": 1,
+        "countrycodes": "ke",
+        "viewbox": _NAIROBI_KIAMBU_VIEWBOX,
+        "bounded": 1,
+        "addressdetails": 1,
+        "q": f"{place}, Kenya",
+    }
+    headers = {"User-Agent": "movers-cli-demo"}
+
+    for attempt in range(2):  # try once, then retry once if rate-limited
+        resp = requests.get("https://nominatim.openstreetmap.org/search",
+                             params=params, headers=headers, timeout=10)
+        if resp.status_code == 429 and attempt == 0:
+            time.sleep(2)  # brief pause before retrying
+            continue
+        resp.raise_for_status()
+        results = resp.json()
+        break
+    else:
+        results = []
+
+    if not results:
+        raise ValueError(f"Location not found: {place}")
+
+    match = results[0]
+    address = match.get("address", {})
+    county = (address.get("county") or address.get("state") or "").lower().replace(" county", "")
+    if county and not any(valid in county for valid in _VALID_COUNTIES):
+        raise ValueError(f"'{place}' seems to be outside Nairobi/Kiambu (matched: {county}).")
+
+    result = (float(match["lat"]), float(match["lon"]))
+    _geocode_cache[key] = result
+    return result
 
 
 def driving_km(a, b):
-    # TODO: given two (lat, lon) tuples, return driving distance in km
-    # (e.g. using OSRM's routing API). Raise ValueError if no route is found.
-    raise NotImplementedError("driving_km() not implemented yet — Task 2")
+    """Return driving distance in km between two (lat, lon) tuples, using OSRM."""
+    url = f"https://router.project-osrm.org/route/v1/driving/{a[1]},{a[0]};{b[1]},{b[0]}"
+
+    for attempt in range(2):  # try once, then retry once if rate-limited
+        resp = requests.get(url, params={"overview": "false"}, timeout=10)
+        if resp.status_code == 429 and attempt == 0:
+            time.sleep(2)
+            continue
+        resp.raise_for_status()
+        data = resp.json()
+        break
+    else:
+        data = {}
+
+    if not data.get("routes"):
+        raise ValueError("No route found.")
+    return data["routes"][0]["distance"] / 1000
 
 
 # ============================================================
