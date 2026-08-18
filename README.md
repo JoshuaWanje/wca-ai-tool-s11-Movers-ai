@@ -18,9 +18,10 @@ A command-line chatbot that collects a customer's moving details (pickup locatio
    - Computes a price quote based on the rate card
    - Prints the quote and saves it to movers_quote.txt
 
-## Setup
+## how to set up
 
-### 1. Clone the repo
+### 1. Cloning the repo
+By using the command prompt
 
 git clone https://github.com/JoshuaWanje/wca-ai-tool-s11-Movers-ai.git
 cd wca-ai-tool-s11-Movers-ai
@@ -36,7 +37,7 @@ Activate it:
 - macOS/Linux: source venv/bin/activate
 
 ### 3. Install dependencies
-
+how to install:
 pip install -r requirements.txt
 
 
