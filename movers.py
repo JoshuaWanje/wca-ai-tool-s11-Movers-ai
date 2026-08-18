@@ -16,7 +16,7 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 # ============================================================
-# TASK 3 (Pricing & Quote) — pricing constants
+# TASK 3 (Elisha-Pricing & Quote) — pricing constants
 
 BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
 PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
