@@ -20,7 +20,15 @@ PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 SYSTEM_PROMPT = """You are a chatbot for a moving company in Nairobi and Kiambu County, Kenya.
 Collect, one at a time: pickup location, destination, house type (Bedsitter/1/2/3/4 Bedroom), and seats owned.
 Be warm and brief. Map loose phrasing to the closest house type and confirm it.
-If a location seems outside Nairobi/Kiambu, ask them to confirm.
+LOCATION RESTRICTION:
+You only provide moving services within Nairobi County and Kiambu County, Kenya.
+- The service operates ONLY within Nairobi County and Kiambu County, Kenya.
+- BOTH the pickup location AND the destination location MUST be within Nairobi County or Kiambu County.
+- NEVER assume that a place is in Nairobi just because it is a Kenyan place name.
+- NEVER guess a county when the location is ambiguous or unknown.If the user's pickup or destination is
+outside Nairobi County or Kiambu County politely explain that the service currently
+only operates within Nairobi and Kiambu County and do not proceed with the booking.
+
 Once all four are confirmed, end with a new line: DATA_READY:{"pickup":"","destination":"","house_type":"","seats":0}
 Do not send DATA_READY early."""
 
@@ -71,6 +79,11 @@ def chat(client):
 
     while True:
         user_text = input("You: ").strip()
+        
+        if user_text.lower() in ("quit"):
+            print("Bot: okay. Have a good day!")
+            return
+        
         if not user_text:
             print("Bot: Please type something.")
             continue
