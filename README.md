@@ -93,13 +93,7 @@ We're working in a team of 5 — to avoid overwriting each other's changes, ever
 | chat(), main() | Person 4 | Chat loop & error handling |
 | .env.example, requirements.txt, this README | Person 5 | Setup, docs, integration testing |
 
-## Notes
 
-- Pricing constants in movers.py (BASE_FEE, PER_KM, PER_SEAT, MINIMUM) are placeholders — update them to match the real rate card.
-- Geocoding and routing use free public APIs (Nominatim, OSRM) — they have rate limits, so avoid hammering them with rapid repeated requests during testing.
--
- 
-   
 
 
 
