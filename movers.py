@@ -23,10 +23,8 @@ BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom"
 PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 
 
-# ============================================================
+# ====================================================
 # TASK 1 (AI & Prompt Engineering)
-# TODO: write the full system prompt and implement ask_ai().
-# ============================================================
 SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
 
 Your job is to gather the information needed for a moving quote, one field at a time.
@@ -178,7 +176,7 @@ MAX_TURNS = 50
 # ============================================================
 def chat():
     """Run the interactive chat loop that collects details and triggers a quote."""
-    history = [{"role": "assistant", "content": "Hi! I can help you get a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
+    history = [{"role": "assistant", "content": "Hi! I can help you gkiet a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
     print(f"Bot: {history[0]['content']}")
     turns = 0
 
