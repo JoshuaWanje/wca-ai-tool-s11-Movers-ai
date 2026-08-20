@@ -16,8 +16,7 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 # ============================================================
-# TASK 3 (Pricing & Quote) — pricing constants
-# TODO: replace placeholder rates with the real rate card.
+# TASK 3 ELISHA- (Pricing & Quote) — pricing constants
 # ============================================================
 BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
 PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
@@ -166,11 +165,10 @@ def driving_km(a, b):
 
 
 # ============================================================
-# TASK 3 (Pricing & Quote) — quote logic
-# TODO: compute and display/save the price quote.
+# TASK 3(ELISHA) (Pricing & Quote) — quote logic
 # ============================================================
 def quote(data):
-    # TODO: use geocode() + driving_km() to get distance, then calculate:
+    #  use geocode() + driving_km() to get distance, then calculate:
     #   base fee (from BASE_FEE by house_type) + distance charge + seat charge,
     #   with a MINIMUM floor. Print the breakdown and save it to movers_quote.txt.
     raise NotImplementedError("quote() not implemented yet — Task 3")
