@@ -24,11 +24,8 @@ PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 
 # ====================================================
 # TASK 1 (AI & Prompt Engineering)
-<<<<<<< HEAD
-=======
 # write the full system prompt and implement ask_ai().
-# ============================================================
->>>>>>> fb97e1212c22ea4704e77c1ee7c68e60af555ff2
+# ============================================================ fb97e1212c22ea4704e77c1ee7c68e60af555ff2
 SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
 
 LOCATION RESTRICTION:
