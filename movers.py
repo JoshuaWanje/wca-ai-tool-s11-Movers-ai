@@ -168,10 +168,25 @@ def driving_km(a, b):
 # TASK 3(ELISHA) (Pricing & Quote) — quote logic
 # ============================================================
 def quote(data):
-    #  use geocode() + driving_km() to get distance, then calculate:
-    #   base fee (from BASE_FEE by house_type) + distance charge + seat charge,
-    #   with a MINIMUM floor. Print the breakdown and save it to movers_quote.txt.
-    raise NotImplementedError("quote() not implemented yet — Task 3")
+    # Geocode, get distance, compute price, print + save. All errors caught here.
+    try:
+        km = driving_km(geocode(data["pickup"]), geocode(data["destination"]))
+    except (requests.RequestException, ValueError) as e:
+        print(f"Could not calculate distance: {e}")
+        return
+
+    base = BASE_FEE.get(data["house_type"], BASE_FEE["1 Bedroom"])
+    dist_charge, seat_charge = round(km * PER_KM), data["seats"] * PER_SEAT
+    total = max(base + dist_charge + seat_charge, MINIMUM)
+
+    lines = [f"Distance: {km:.1f} km", f"Base fee ({data['house_type']}): KES {base:,}",
+              f"Distance charge: KES {dist_charge:,}", f"Seats charge: KES {seat_charge:,}", f"TOTAL: KES {total:,}"]
+    print("\n" + "\n".join(lines))
+    with open("movers_quote.txt", "w", encoding="utf-8") as f:
+        f.write(f"{data['pickup']} -> {data['destination']} | {data['house_type']}, {data['seats']} seats\n")
+        f.write("\n".join(lines))
+    print("Saved to movers_quote.txt")
+   
 
 
 # ============================================================
