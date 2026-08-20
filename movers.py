@@ -25,7 +25,18 @@ PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 
 # ====================================================
 # TASK 1 (AI & Prompt Engineering)
+<<<<<<< HEAD
+=======
+# write the full system prompt and implement ask_ai().
+# ============================================================
+>>>>>>> fb97e1212c22ea4704e77c1ee7c68e60af555ff2
 SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
+
+LOCATION RESTRICTION:
+You only provide moving services within Nairobi County and Kiambu County, Kenya.
+If the user's pickup or destination is outside Nairobi County or Kiambu County,
+politely explain that the service currently only operates within Nairobi and Kiambu County and 
+do not proceed with the booking.
 
 Your job is to gather the information needed for a moving quote, one field at a time.
 Ask only for the next missing detail and do not request multiple pieces of information in the same message.
@@ -63,6 +74,7 @@ def ask_ai(history):
         "model": MODEL,
         "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + history,
         "temperature": 0.2,
+        "max_tokens": 400,
     }
 
     response = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60)
