@@ -164,7 +164,7 @@ def driving_km(a, b):
 # ============================================================
 # TASK 3(ELISHA) (Pricing & Quote) — quote logic
 # ============================================================
- Pricing — placeholder rates, edit to match your real rate card.
+#Pricing — placeholder rates, edit to match your real rate card.
 BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
 PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 def quote(data):
