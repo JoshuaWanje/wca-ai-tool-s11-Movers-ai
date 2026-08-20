@@ -18,9 +18,10 @@ A command-line chatbot that collects a customer's moving details (pickup locatio
    - Computes a price quote based on the rate card
    - Prints the quote and saves it to movers_quote.txt
 
-## Setup
+## how to set up
 
-### 1. Clone the repo
+### 1. Cloning the repo
+By using the command prompt
 
 git clone https://github.com/JoshuaWanje/wca-ai-tool-s11-Movers-ai.git
 cd wca-ai-tool-s11-Movers-ai
@@ -36,7 +37,7 @@ Activate it:
 - macOS/Linux: source venv/bin/activate
 
 ### 3. Install dependencies
-
+how to install:
 pip install -r requirements.txt
 
 
@@ -92,13 +93,7 @@ We're working in a team of 5 — to avoid overwriting each other's changes, ever
 | chat(), main() | Person 4 | Chat loop & error handling |
 | .env.example, requirements.txt, this README | Person 5 | Setup, docs, integration testing |
 
-## Notes
 
-- Pricing constants in movers.py (BASE_FEE, PER_KM, PER_SEAT, MINIMUM) are placeholders — update them to match the real rate card.
-- Geocoding and routing use free public APIs (Nominatim, OSRM) — they have rate limits, so avoid hammering them with rapid repeated requests during testing.
--
- 
-   
 
 
 

@@ -16,17 +16,19 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 # ============================================================
-# TASK 3 (Pricing & Quote) — pricing constants
-# TODO: replace placeholder rates with the real rate card.
+# TASK 3 ELISHA- (Pricing & Quote) — pricing constants
 # ============================================================
 BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
 PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 
 
-# ============================================================
+# ====================================================
 # TASK 1 (AI & Prompt Engineering)
+<<<<<<< HEAD
+=======
 # write the full system prompt and implement ask_ai().
 # ============================================================
+>>>>>>> fb97e1212c22ea4704e77c1ee7c68e60af555ff2
 SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
 
 LOCATION RESTRICTION:
@@ -163,14 +165,31 @@ def driving_km(a, b):
 
 
 # ============================================================
-# TASK 3 (Pricing & Quote) — quote logic
-# TODO: compute and display/save the price quote.
+# TASK 3(ELISHA) (Pricing & Quote) — quote logic
 # ============================================================
+ Pricing — placeholder rates, edit to match your real rate card.
+BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
+PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 def quote(data):
-    # TODO: use geocode() + driving_km() to get distance, then calculate:
-    #   base fee (from BASE_FEE by house_type) + distance charge + seat charge,
-    #   with a MINIMUM floor. Print the breakdown and save it to movers_quote.txt.
-    raise NotImplementedError("quote() not implemented yet — Task 3")
+    # Geocode, get distance, compute price, print + save. All errors caught here.
+    try:
+        km = driving_km(geocode(data["pickup"]), geocode(data["destination"]))
+    except (requests.RequestException, ValueError) as e:
+        print(f"Could not calculate distance: {e}")
+        return
+
+    base = BASE_FEE.get(data["house_type"], BASE_FEE["1 Bedroom"])
+    dist_charge, seat_charge = round(km * PER_KM), data["seats"] * PER_SEAT
+    total = max(base + dist_charge + seat_charge, MINIMUM)
+
+    lines = [f"Distance: {km:.1f} km", f"Base fee ({data['house_type']}): KES {base:,}",
+              f"Distance charge: KES {dist_charge:,}", f"Seats charge: KES {seat_charge:,}", f"TOTAL: KES {total:,}"]
+    print("\n" + "\n".join(lines))
+    with open("movers_quote.txt", "w", encoding="utf-8") as f:
+        f.write(f"{data['pickup']} -> {data['destination']} | {data['house_type']}, {data['seats']} seats\n")
+        f.write("\n".join(lines))
+    print("Saved to movers_quote.txt")
+   
 
 
 # ============================================================
@@ -185,7 +204,7 @@ MAX_TURNS = 50
 # ============================================================
 def chat():
     """Run the interactive chat loop that collects details and triggers a quote."""
-    history = [{"role": "assistant", "content": "Hi! I can help you get a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
+    history = [{"role": "assistant", "content": "Hi! I can help you gkiet a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
     print(f"Bot: {history[0]['content']}")
     turns = 0
 
