@@ -104,7 +104,7 @@ def geocode(place):
     key = place.strip().lower()
     if key in _geocode_cache:
         return _geocode_cache[key]
-
+  
     params = {
         "format": "jsonv2",
         "limit": 1,
