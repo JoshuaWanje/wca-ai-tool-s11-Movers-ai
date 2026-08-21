@@ -248,14 +248,27 @@ def chat():
             if visible.strip():
                 print(f"Bot: {visible.strip()}")
             try:
-                quote(json.loads(json_part.strip()))
-                return
+                parsed = json.loads(json_part.strip())
             except json.JSONDecodeError:
-                # Ask the AI to resend the data instead of giving up entirely
-                history.append({"role": "user",
-                                 "content": "That JSON didn't come through correctly. Please resend the DATA_READY line with valid JSON."})
-                print("Bot: Sorry, something went wrong reading the details — let me try that again.")
-                continue
+                print("Bot: Couldn't read the collected details.")
+                break
+
+            # normalize keys: lowercase, strip whitespace, map common variants
+            parsed = {k.strip().lower(): v for k, v in parsed.items()}
+            aliases = {"pickup_location": "pickup", "origin": "pickup",
+                       "destination_location": "destination", "seats_owned": "seats"}
+            for old, new in aliases.items():
+                if old in parsed and new not in parsed:
+                    parsed[new] = parsed.pop(old)
+
+            required = ["pickup", "destination", "house_type", "seats"]
+            missing = [k for k in required if k not in parsed]
+            if missing:
+                print(f"Bot: Sorry, I lost track of some details ({', '.join(missing)}). Let's start over.")
+                break
+
+            quote(parsed)
+            break
 
         print(f"Bot: {reply}")
 
