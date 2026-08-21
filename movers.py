@@ -25,7 +25,7 @@ PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 # ====================================================
 # TASK 1 (AI & Prompt Engineering)
 # write the full system prompt and implement ask_ai().
-# ============================================================ fb97e1212c22ea4704e77c1ee7c68e60af555ff2
+
 SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
 
 LOCATION RESTRICTION:
@@ -49,7 +49,7 @@ Rules:
 - Accept common variations for house types such as Bedsitter, 1 Bedroom, 2 Bedroom, 3 Bedroom, and 4 Bedroom.
 - Treat seats owned as an integer number.
 - Once all four details are known, respond with a brief confirmation and then end the message with a line exactly in this format:
-DATA_READY: {"pickup_location": "...", "destination": "...", "house_type": "...", "seats_owned": 0}
+DATA_READY: {"pickup": "...", "destination": "...", "house_type": "...", "seats_owned": 0}
 - Do not add extra JSON blocks or markdown fences.
 - The final line must be valid JSON and include all collected details.
 """
@@ -201,7 +201,7 @@ MAX_TURNS = 50
 # ============================================================
 def chat():
     """Run the interactive chat loop that collects details and triggers a quote."""
-    history = [{"role": "assistant", "content": "Hi! I can help you gkiet a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
+    history = [{"role": "assistant", "content": "Hi! I can help you get a moving quote in Nairobi or Kiambu. Where are you moving from?"}]
     print(f"Bot: {history[0]['content']}")
     turns = 0
 
@@ -252,7 +252,7 @@ def chat():
             except json.JSONDecodeError:
                 # Ask the AI to resend the data instead of giving up entirely
                 history.append({"role": "user",
-                                 "content": "That JSON didn't come through correctly. Please resend the DATA_READY line with valid JSON."})
+                             "content": "That JSON didn't come through correctly. Please resend the DATA_READY line with valid JSON."})
                 print("Bot: Sorry, something went wrong reading the details — let me try that again.")
                 continue
 
@@ -269,5 +269,5 @@ def main():
         print("\nCancelled.")
 
 
-if __name__ == "__main__":
+if __name__ == "_main_":
     main()
