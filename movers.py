@@ -16,16 +16,17 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 # ============================================================
-# TASK 3 ELISHA- (Pricing & Quote) — pricing constants
+# TASK 3 (Pricing & Quote) — pricing constants
+# TODO: replace placeholder rates with the real rate card.
 # ============================================================
 BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
 PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 
 
-# ====================================================
+# ============================================================
 # TASK 1 (AI & Prompt Engineering)
 # write the full system prompt and implement ask_ai().
-
+# ============================================================
 SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
 
 LOCATION RESTRICTION:
@@ -49,7 +50,7 @@ Rules:
 - Accept common variations for house types such as Bedsitter, 1 Bedroom, 2 Bedroom, 3 Bedroom, and 4 Bedroom.
 - Treat seats owned as an integer number.
 - Once all four details are known, respond with a brief confirmation and then end the message with a line exactly in this format:
-DATA_READY: {"pickup": "...", "destination": "...", "house_type": "...", "seats_owned": 0}
+DATA_READY: {"pickup_location": "...", "destination": "...", "house_type": "...", "seats_owned": 0}
 - Do not add extra JSON blocks or markdown fences.
 - The final line must be valid JSON and include all collected details.
 """
@@ -103,7 +104,7 @@ def geocode(place):
     key = place.strip().lower()
     if key in _geocode_cache:
         return _geocode_cache[key]
-  
+
     params = {
         "format": "jsonv2",
         "limit": 1,
@@ -162,31 +163,14 @@ def driving_km(a, b):
 
 
 # ============================================================
-# TASK 3(ELISHA) (Pricing & Quote) — quote logic
+# TASK 3 (Pricing & Quote) — quote logic
+# TODO: compute and display/save the price quote.
 # ============================================================
-#Pricing — placeholder rates, edit to match your real rate card.
-BASE_FEE = {"Bedsitter": 3000, "1 Bedroom": 5000, "2 Bedroom": 8000, "3 Bedroom": 12000, "4 Bedroom": 16000}
-PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 def quote(data):
-    # Geocode, get distance, compute price, print + save. All errors caught here.
-    try:
-        km = driving_km(geocode(data["pickup"]), geocode(data["destination"]))
-    except (requests.RequestException, ValueError) as e:
-        print(f"Could not calculate distance: {e}")
-        return
-
-    base = BASE_FEE.get(data["house_type"], BASE_FEE["1 Bedroom"])
-    dist_charge, seat_charge = round(km * PER_KM), data["seats"] * PER_SEAT
-    total = max(base + dist_charge + seat_charge, MINIMUM)
-
-    lines = [f"Distance: {km:.1f} km", f"Base fee ({data['house_type']}): KES {base:,}",
-              f"Distance charge: KES {dist_charge:,}", f"Seats charge: KES {seat_charge:,}", f"TOTAL: KES {total:,}"]
-    print("\n" + "\n".join(lines))
-    with open("movers_quote.txt", "w", encoding="utf-8") as f:
-        f.write(f"{data['pickup']} -> {data['destination']} | {data['house_type']}, {data['seats']} seats\n")
-        f.write("\n".join(lines))
-    print("Saved to movers_quote.txt")
-   
+    # TODO: use geocode() + driving_km() to get distance, then calculate:
+    #   base fee (from BASE_FEE by house_type) + distance charge + seat charge,
+    #   with a MINIMUM floor. Print the breakdown and save it to movers_quote.txt.
+    raise NotImplementedError("quote() not implemented yet — Task 3")
 
 
 # ============================================================
@@ -252,7 +236,7 @@ def chat():
             except json.JSONDecodeError:
                 # Ask the AI to resend the data instead of giving up entirely
                 history.append({"role": "user",
-                             "content": "That JSON didn't come through correctly. Please resend the DATA_READY line with valid JSON."})
+                                 "content": "That JSON didn't come through correctly. Please resend the DATA_READY line with valid JSON."})
                 print("Bot: Sorry, something went wrong reading the details — let me try that again.")
                 continue
 
