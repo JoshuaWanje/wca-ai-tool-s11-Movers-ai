@@ -93,103 +93,81 @@ We're working in a team of 5 — to avoid overwriting each other's changes, ever
 | chat(), main() | Person 4 | Chat loop & error handling |
 | .env.example, requirements.txt, this README | Person 5 | Setup, docs, integration testing |
 
+## SYSTEM_PROMPT AND ASK_AI() REPORT
 
-## SYSTEM_PROMPT AND ASK_AI REPORT – MOVERS AI
- 
 ## 1. SYSTEM_PROMPT
 
-The SYSTEM_PROMPT gives instructions to the Movers AI chatbot. It tells the chatbot what information to collect and how to interact with the customer.
-
-## The chatbot collects:
-
-Pickup location
-Destination
-House type
-Seats owned
-
-The chatbot asks one question at a time. After collecting all the information, it returns the details using DATA_READY: in JSON format.
-
-Code
-SYSTEM_PROMPT = """
+The SYSTEM_PROMPT gives instructions to the Movers AI chatbot. It controls how the chatbot communicates
+with customers and tells it what information to collect.
+The chatbot collects four details: pickup location, destination, house type, and seats owned. It asks one
+question at a time and, after collecting all the information, returns the details using DATA_READY in JSON
+format.
+## SYSTEM_PROMPT = """
 You are a moving services assistant.
-
-## Collect the following details from the customer:
-
+Collect the following details from the customer:
 1. Pickup location
 2. Destination
 3. House type
-4. Number of seats owned
 
-## Rules:
+## 4. Number of seats owned
+
+Rules:
 - Ask for only one detail at a time.
 - Wait for the customer's response before asking the next question.
 - Do not ask for information that has already been provided.
 - Keep the conversation simple and professional.
-
 When all the required information has been collected, respond with:
-
 DATA_READY:
 {
-    "pickup_location": "<pickup location>",
-    "destination": "<destination>",
-    "house_type": "<house type>",
-    "seats_owned": "<number of seats>"
+"pickup_location": "<pickup location>",
+"destination": "<destination>",
+"house_type": "<house type>",
+"seats_owned": "<number of seats>"
 }
 """
 ## 2. ASK_AI()
 
-The ask_ai() function connects the chatbot to the AI model. It sends the customer's conversation together with the system instructions and receives the AI response.
-
-Code
+The ask_ai() function connects the chatbot to the AI model. It sends the conversation and the system
+instructions to the model and returns the AI-generated response.
 def ask_ai(messages):
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=messages,
-        config={
-            "system_instruction": SYSTEM_PROMPT
-        }
-    )
-    
-    return response.text
-## 3. How It Works
+response = client.models.generate_content(
+model="gemini-2.5-flash",
+contents=messages,
+config={
+"system_instruction": SYSTEM_PROMPT
+}
+)
+return response.text
 
-The process is:
+## 3. HOW THE SYSTEM WORKS
 
-The customer sends a message.
-The ask_ai() function receives the conversation.
-The system prompt tells the AI what information to collect.
-The AI asks one question at a time.
-The customer provides the required information.
-After all four details are collected, the AI returns DATA_READY:.
-The information is provided in JSON format.
-4. Example
+1. The customer sends a message requesting moving services.
+2. The ask_ai() function receives the conversation.
+3. The SYSTEM_PROMPT tells the AI what information to collect.
+4. The chatbot asks one question at a time.
+5. The customer provides the required information.
+6. After all four details are collected, the chatbot returns DATA_READY.
+7. The information is returned in JSON format.
+4. EXAMPLE
 Bot: What is your pickup location?
 Customer: Nairobi
-
 Bot: What is your destination?
 Customer: Kiambu
-
 Bot: What type of house are you moving from?
 Customer: Three bedroom
-
 Bot: How many seats do you own?
 Customer: 7
-
-## Final response:
-
+DATA_READY:
 {
-    "pickup_location": "Nairobi",
-    "destination": "Kiambu",
-    "house_type": "Three bedroom",
-    "seats_owned": "7"
+"pickup_location": "Nairobi",
+"destination": "Kiambu",
+"house_type": "Three bedroom",
+"seats_owned": "7"
 }
-## Conclusion
+## 5. CONCLUSION
 
-The SYSTEM_PROMPT controls the chatbot's behavior, while ask_ai() connects the conversation to the AI model. Together, they allow the Movers AI chatbot to collect customer moving information in a simple, organized, and structured way.
+The SYSTEM_PROMPT controls the chatbot's behavior, while ask_ai() connects the conversation to the AI
+model. Together, they allow the Movers AI chatbot to collect customer moving information in a simple,
+organized, and in structured way
 
 
-
-
-  
-     
- 
