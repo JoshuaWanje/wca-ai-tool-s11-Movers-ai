@@ -70,7 +70,7 @@ def ask_ai(history):
         "model": MODEL,
         "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + history,
         "temperature": 0.2,
-        "max_tokens": 400,
+        "max_tokens": 300,
     }
 
     response = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60)
