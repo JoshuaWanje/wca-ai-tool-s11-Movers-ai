@@ -30,10 +30,13 @@ SYSTEM_PROMPT = """You are a helpful Nairobi and Kiambu movers assistant.
 
 LOCATION RESTRICTION:
 You only provide moving services within Nairobi County and Kiambu County, Kenya.
-If the user's pickup or destination is outside Nairobi County or Kiambu County,
-politely explain that the service currently only operates within Nairobi and Kiambu County and 
-do not proceed with the booking.
 
+If the user's pickup or destination is outside Nairobi County or Kiambu County:
+- Do not proceed with the booking.
+- Tell the user that the location is outside our service area.
+- If the county is known, mention it.
+- For example:
+  "[Location] is located in [County] and is outside our Nairobi/Kiambu service area. We currently only provide moving services within Nairobi and Kiambu County."
 Your job is to gather the information needed for a moving quote, one field at a time.
 Ask only for the next missing detail and do not request multiple pieces of information in the same message.
 
@@ -98,48 +101,104 @@ _VALID_COUNTIES = {"nairobi", "kiambu"}
 
 
 def geocode(place):
-    """Look up (lat, lon) for a place name, biased toward Nairobi/Kiambu, with caching,
-    rate-limit retry, and a check that the result is really in Nairobi/Kiambu."""
+    """Find a location in Nairobi or Kiambu using Nominatim."""
+
     key = place.strip().lower()
+
     if key in _geocode_cache:
         return _geocode_cache[key]
 
     params = {
         "format": "jsonv2",
-        "limit": 1,
+        "limit": 5,
         "countrycodes": "ke",
         "viewbox": _NAIROBI_KIAMBU_VIEWBOX,
-        "bounded": 1,
+        "bounded": 0,  # Bias toward Nairobi/Kiambu but don't block valid areas
         "addressdetails": 1,
         "q": f"{place}, Kenya",
     }
-    headers = {"User-Agent": "movers-cli-demo"}
 
-    for attempt in range(2):  # try once, then retry once if rate-limited
-        resp = requests.get("https://nominatim.openstreetmap.org/search",
-                             params=params, headers=headers, timeout=10)
-        if resp.status_code == 429 and attempt == 0:
-            time.sleep(2)  # brief pause before retrying
-            continue
-        resp.raise_for_status()
-        results = resp.json()
-        break
-    else:
-        results = []
+    headers = {
+        "User-Agent": "Nairobi-Kiambu-Movers/1.0"
+    }
+
+    results = []
+
+    for attempt in range(2):
+        try:
+            resp = requests.get(
+                "https://nominatim.openstreetmap.org/search",
+                params=params,
+                headers=headers,
+                timeout=10
+            )
+
+            if resp.status_code == 429 and attempt == 0:
+                time.sleep(2)
+                continue
+
+            resp.raise_for_status()
+            results = resp.json()
+            break
+
+        except requests.RequestException:
+            if attempt == 0:
+                time.sleep(2)
+                continue
+            raise
 
     if not results:
         raise ValueError(f"Location not found: {place}")
 
-    match = results[0]
-    address = match.get("address", {})
-    county = (address.get("county") or address.get("state") or "").lower().replace(" county", "")
-    if county and not any(valid in county for valid in _VALID_COUNTIES):
-        raise ValueError(f"'{place}' seems to be outside Nairobi/Kiambu (matched: {county}).")
+    # Look through all returned results instead of only results[0]
+    for match in results:
 
-    result = (float(match["lat"]), float(match["lon"]))
-    _geocode_cache[key] = result
-    return result
+        address = match.get("address", {})
 
+        # Check the important location fields
+        location_text = " ".join([
+            str(address.get("county", "")),
+            str(address.get("state", "")),
+            str(address.get("city", "")),
+            str(address.get("town", "")),
+            str(address.get("municipality", "")),
+            str(address.get("district", "")),
+            str(address.get("city_district", "")),
+        ]).lower()
+
+        # Accept locations identified as Nairobi or Kiambu
+        if "nairobi" in location_text or "kiambu" in location_text:
+
+            result = (
+                float(match["lat"]),
+                float(match["lon"])
+            )
+
+            _geocode_cache[key] = result
+            return result
+
+    # If Nominatim did not provide county information,
+    # use the Nairobi/Kiambu geographical area as a fallback.
+    for match in results:
+
+        lat = float(match["lat"])
+        lon = float(match["lon"])
+
+        # Broad Nairobi + Kiambu area
+        if (
+            -1.55 <= lat <= -0.75
+            and 36.55 <= lon <= 37.15
+        ):
+            result = (lat, lon)
+
+            _geocode_cache[key] = result
+            return result
+
+    raise ValueError(
+        f"'{place}' could not be confirmed as being in Nairobi or Kiambu County."
+    )
+
+    
 
 def driving_km(a, b):
     """Return driving distance in km between two (lat, lon) tuples, using OSRM."""
@@ -171,20 +230,20 @@ PER_KM, PER_SEAT, MINIMUM = 100, 300, 3500
 def quote(data):
     # Geocode, get distance, compute price, print + save. All errors caught here.
     try:
-        km = driving_km(geocode(data["pickup"]), geocode(data["destination"]))
+        km = driving_km(geocode(data["pickup_location"]), geocode(data["destination"]))
     except (requests.RequestException, ValueError) as e:
         print(f"Could not calculate distance: {e}")
         return
 
     base = BASE_FEE.get(data["house_type"], BASE_FEE["1 Bedroom"])
-    dist_charge, seat_charge = round(km * PER_KM), data["seats"] * PER_SEAT
+    dist_charge, seat_charge = round(km * PER_KM), data["seats_owned"] * PER_SEAT
     total = max(base + dist_charge + seat_charge, MINIMUM)
 
     lines = [f"Distance: {km:.1f} km", f"Base fee ({data['house_type']}): KES {base:,}",
               f"Distance charge: KES {dist_charge:,}", f"Seats charge: KES {seat_charge:,}", f"TOTAL: KES {total:,}"]
     print("\n" + "\n".join(lines))
     with open("movers_quote.txt", "w", encoding="utf-8") as f:
-        f.write(f"{data['pickup']} -> {data['destination']} | {data['house_type']}, {data['seats']} seats\n")
+        f.write(f"{data['pickup_location']} -> {data['destination']} | {data['house_type']}, {data['seats_owned']} seats\n")
         f.write("\n".join(lines))
     print("Saved to movers_quote.txt")
 
