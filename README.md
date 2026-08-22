@@ -7,7 +7,7 @@
 
 # Nairobi & Kiambu Movers Chatbot
 
-A command-line chatbot that collects a customer's moving details (pickup location, destination, house type, and seats) through natural conversation, then calculates and prints a price quote based on real driving distance.
+A command-line chatbot that collects a customer's moving details (pickup location, destination, house type, and seats) through natural conversation, then calculates and prints a price quote based on real driving distance between the two locations.built with python using openstrap for geocoding and the open router API for natural language conversation
 
 ## What it does
 
