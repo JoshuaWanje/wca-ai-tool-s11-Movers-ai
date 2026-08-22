@@ -3,3 +3,6 @@ venv/
 _pycache_/
 *.pyc
 movers_quote.txt
+.vscode/
+.idea/
+DS_Store
